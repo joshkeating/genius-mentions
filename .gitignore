@@ -1,3 +1,7 @@
 .vscode/
 secrets.json
 
+
+
+data/tmp.json
+data/artist-dict.json

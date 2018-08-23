@@ -28,8 +28,21 @@ request.add_header("User-Agent", "")
 
 response = json.load(urllib.request.urlopen(request))
 
+
+with open('./data/artist-dict.json', 'w') as ad:
+    json.dump(response, ad)
+
+hits = response['response']['hits']
+
+
+for key in hits:
+    resultDict = key.get("result")
+    print("Title: " + resultDict.get("title") + " URL: " + resultDict.get("url"))
+
+
+
 # give a big json obj of the artist
-print(response)
+# print(response)
 
 
 
