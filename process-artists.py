@@ -8,8 +8,6 @@ import time
 
 
 
-targetArtist = "21 Savage"
-
 # get access tokens from file
 def getToken():
     with open('./secrets.json') as secrets:
@@ -56,6 +54,7 @@ def getSongs(artistId):
 
     currentPage = 1
     pageStatus = True
+    recordsProcessed = 0
 
     output = open('./data/song-data.csv', 'w', newline='')
     writer = csv.writer(output, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -83,12 +82,11 @@ def getSongs(artistId):
         url = song.get("url")
         primaryArtistId = song.get("primary_artist").get("id")
         primaryArtistName = song.get("primary_artist").get("name")
-
         # write to file
         writer.writerow([songId, title, titleWithFeat, primaryArtistId, primaryArtistName, url])
+        recordsProcessed += 1
 
-
-    print("Batch processed...")
+    print("Batch processed...", recordsProcessed, "records proccesed", sep=" ")
     time.sleep(5)
 
     # check to see if any more records exist
@@ -121,18 +119,18 @@ def getSongs(artistId):
                 url = song.get("url")
                 primaryArtistId = song.get("primary_artist").get("id")
                 primaryArtistName = song.get("primary_artist").get("name")
-
                 # write to file
                 writer.writerow([songId, title, titleWithFeat, primaryArtistId, primaryArtistName, url])
+                recordsProcessed += 1
 
-            print("Batch processed...")
+            print("Batch processed...", recordsProcessed, "records proccesed", sep=" ")
             # Wait
             time.sleep(5)
             
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
                 pageStatus = False
-                output.close()    
+                output.close()
 
         except:
             print("Something broke!")
@@ -144,9 +142,12 @@ def getSongs(artistId):
 
 
 
-# print(getArtistData(430404))
-# print(getArtistId("21 Savage"))
+# given an artist name, create a csv with their name as the filename
+# find their genius id, load all their songs into the csv
 
-getSongs(430404)
+def findAllSongs(artistName):
 
+    # get the id of given artist
+    artistId = getArtistId(artistName)
 
+    
