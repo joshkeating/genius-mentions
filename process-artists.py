@@ -152,7 +152,7 @@ def findAllSongsForArtist(artistName, output):
 
 def processFile(sourceFile, outputFile):
 
-    sourceFilePath = "./data/" + sourceFile
+    sourceFilePath = "./data/input/" + sourceFile
     outputFilePath = "./data/output/" + outputFile
 
     # init output file
@@ -177,4 +177,4 @@ def processFile(sourceFile, outputFile):
 
 
 # run it
-processFile("ao1.txt", "ao1.csv")
+processFile("ao3.txt", "ao3.csv")
