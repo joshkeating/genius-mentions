@@ -50,16 +50,20 @@ def getArtistId(artistName):
     return artistId
 
 
-def getSongs(artistId):
+
+
+def findAllSongsForArtist(artistName, output):
+
+    # get the id of given artist
+    artistId = getArtistId(artistName)
 
     currentPage = 1
     pageStatus = True
     recordsProcessed = 0
-
-    output = open('./data/song-data.csv', 'w', newline='')
+    
+    # init output file
+    # output = open(outputFile, 'w', newline='')
     writer = csv.writer(output, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    # add the header to the file
-    writer.writerow(["song_id", "title", "title_with_featured", "primary_artist_id", "primary_artist_name", "url"])
 
     # process first call
 
@@ -93,7 +97,7 @@ def getSongs(artistId):
     if response["response"]["next_page"] == None:
         print("End of pages reached, Exiting")
         pageStatus = False
-        output.close()
+        # output.close()
             
 
     while pageStatus == True:
@@ -130,7 +134,7 @@ def getSongs(artistId):
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
                 pageStatus = False
-                output.close()
+                # output.close()
 
         except:
             print("Something broke!")
@@ -145,9 +149,34 @@ def getSongs(artistId):
 # given an artist name, create a csv with their name as the filename
 # find their genius id, load all their songs into the csv
 
-def findAllSongs(artistName):
 
-    # get the id of given artist
-    artistId = getArtistId(artistName)
 
+
+def processFile(sourceFile, outputFile):
+
+    sourceFilePath = "./data/" + sourceFile
+    outputFilePath = "./data/output/" + outputFile
+
+    # init output file
+    output = open(outputFilePath, 'w', newline='')
+    writer = csv.writer(output, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    # add the header to the file
+    writer.writerow(["song_id", "title", "title_with_featured", "primary_artist_id", "primary_artist_name", "url"])
     
+
+    # get names from file
+    file = open(sourceFilePath, "r")
+    nameList = file.readlines()
+
+    for name in nameList:
+
+        print("---- Processing: " + name)
+        findAllSongsForArtist(name, output)
+
+    output.close()
+    return
+
+
+
+# run it
+processFile("ao1.txt", "ao1.csv")
