@@ -150,8 +150,6 @@ def findAllSongsForArtist(artistName, output):
 # find their genius id, load all their songs into the csv
 
 
-
-
 def processFile(sourceFile, outputFile):
 
     sourceFilePath = "./data/" + sourceFile
