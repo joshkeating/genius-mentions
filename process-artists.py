@@ -144,8 +144,6 @@ def findAllSongsForArtist(artistName, output):
     return
 
 
-
-
 # given an artist name, create a csv with their name as the filename
 # find their genius id, load all their songs into the csv
 
