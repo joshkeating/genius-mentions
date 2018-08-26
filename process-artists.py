@@ -177,4 +177,4 @@ def processFile(sourceFile, outputFile):
 
 
 # run it
-processFile("ao3.txt", "ao3.csv")
+processFile("ao6.txt", "ao6.csv")
