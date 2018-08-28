@@ -78,7 +78,7 @@ def processNRows(sourceFile, outputFile):
             count += 1
 
             # print status and sleep for random intervals
-            if count % 10 == 0:
+            if count % 20 == 0:
                 print(str(count) + " records processed")
                 waitTime = random.randint(4, 15)
                 print("Waiting " + str(waitTime) + " seconds...")
@@ -93,6 +93,6 @@ def processNRows(sourceFile, outputFile):
 
         
 # run it
-processNRows("ao1.csv", "full-ao1.csv")
+processNRows("ao2.csv", "full-ao2.csv")
 
 
