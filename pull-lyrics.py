@@ -95,7 +95,7 @@ def processNRows(sourceFile, outputFile):
 
         
 # run it
-processNRows("ao5.csv", "full-ao5.csv")
+processNRows("ao6.csv", "full-ao6.csv")
 
 
 
