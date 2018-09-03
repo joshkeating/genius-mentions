@@ -75,7 +75,7 @@ for currentRow in reader:
 # what I want: 
 # scatterplot with line, hoverable metadata
 
-genPal = viridis(len(artists))
+genPal = viridis(len(artists)) #pylint: disable=E0602
 
 # output to static HTML file
 output_file("./plots/lines.html")
@@ -86,7 +86,7 @@ source1 = ColumnDataSource(data=dict(dates=dates, counts=oc, colors=artists))
 p = figure(title="title", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime")
 p.circle(x='dates', y=jitter('counts', width=0.6, range=p.y_range), fill_alpha=0.6, size=10, source=source1, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
-
+# p.vbar_stack(artists, x='dates', width=0.9, color='colors', source=source1)
 
 # source2 = ColumnDataSource(data=dict(dates=dates, counts=oc, colors=artists))
 # p2 = figure(title="title", x_axis_type="datetime")
