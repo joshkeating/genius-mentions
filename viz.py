@@ -37,13 +37,15 @@ oc = []
 dates = []
 artists = []
 
+# ct = 0
+# cumulative = []
+
 for currentRow in reader:
 
     # songTitle = currentRow[1]
     # artist = currentRow[4]
 
     dateRaw = currentRow[7]
-
 
     count = searchMention(currentRow[10], target)
 
@@ -53,6 +55,10 @@ for currentRow in reader:
 
         formattedDates = datetime.strptime(dateRaw, '%B %d, %Y')
         artists.append(currentRow[4])
+
+        # ct += count
+        # cumulative.append(ct)
+
         oc.append(count)
         dates.append(formattedDates)
 
@@ -66,25 +72,22 @@ for currentRow in reader:
 # print(artists)
 
 # print(len(dates))
-# print(len(set(dates)))
+print(len(set(dates)))
 
 # print()
 # print(totalCount)
 # print(first)
 
-# what I want: 
-# scatterplot with line, hoverable metadata
 
 genPal = viridis(len(artists)) #pylint: disable=E0602
 
 # output to static HTML file
 output_file("./plots/lines.html")
 
-source1 = ColumnDataSource(data=dict(dates=dates, counts=oc, colors=artists))
-
-# # create a new plot with a title and axis labels
-p = figure(title="title", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime")
-p.circle(x='dates', y=jitter('counts', width=0.6, range=p.y_range), fill_alpha=0.6, size=10, source=source1, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
+# # code for scatter
+# source1 = ColumnDataSource(data=dict(dates=dates, counts=oc, colors=artists))
+# p = figure(title="title", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime")
+# p.circle(x='dates', y=jitter('counts', width=0.6, range=p.y_range), fill_alpha=0.6, size=10, source=source1, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
 # p.vbar_stack(artists, x='dates', width=0.9, color='colors', source=source1)
 
@@ -92,11 +95,12 @@ p.circle(x='dates', y=jitter('counts', width=0.6, range=p.y_range), fill_alpha=0
 # p2 = figure(title="title", x_axis_type="datetime")
 # p2.vbar(x='dates', top='counts', width=0.9, source=source2, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
+# pc = figure(x_axis_type="datetime", title="usage over time")
+# pc.grid.grid_line_alpha=0.3
+# pc.xaxis.axis_label = 'Date'
+# pc.yaxis.axis_label = 'Count'
+# pc.line(dates, cumulative, color='#A6CEE3', legend='patek')
 
-
-# p.line(dates, oc)
-
-# show the results
+# show results
 # show(p)
-
-show(p)
+# show(pc)
