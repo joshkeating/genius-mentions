@@ -4,7 +4,7 @@ from bokeh.plotting import figure, output_file, show
 from datetime import datetime
 
 
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.palettes import *
 from bokeh.transform import factor_cmap, jitter
 
@@ -125,8 +125,16 @@ sourceAvg = ColumnDataSource(monthDownsampled_Avg)
 
 source = ColumnDataSource(data=dict(dates=dates, counts=refCounts, colors=artists))
 
+hover = HoverTool(
+    tooltips=[('Sum', '@counts'), ('Date', '@dates{%B %Y}')],
+    formatters={
+        'dates' : 'datetime', # use 'datetime' formatter for 'dates' field
+    }
+)
+
+
 monthlyCounts = figure(title="Patek References Over Time", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime",
-                        toolbar_location=None, tools="hover", tooltips="@dates : @counts")
+                        toolbar_location=None, tools=[hover])
 monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=2.5, legend="Sum")
 
 # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
