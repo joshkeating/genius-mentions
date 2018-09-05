@@ -106,7 +106,7 @@ monthDownsampled_Avg = df.resample('M', level=1).mean()
 
 
 
-# genPal = viridis(len(artists)) #pylint: disable=E0602
+genPal = viridis(len(artists)) #pylint: disable=E0602
 
 # output to static HTML file
 output_file("./plots/lines.html")
@@ -122,9 +122,15 @@ output_file("./plots/lines.html")
 
 sourceSum = ColumnDataSource(monthDownsampled_Sum)
 sourceAvg = ColumnDataSource(monthDownsampled_Avg)
-monthlyCounts = figure(title="Patek References Over Time", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime")
-monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=3, legend="Sum")
-monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
+
+source = ColumnDataSource(data=dict(dates=dates, counts=refCounts, colors=artists))
+
+monthlyCounts = figure(title="Patek References Over Time", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime",
+                        toolbar_location=None, tools="hover", tooltips="@dates : @counts")
+monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=2.5, legend="Sum")
+
+# monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
+# monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
 
 show(monthlyCounts)
