@@ -4,7 +4,7 @@ from bokeh.plotting import figure, output_file, show
 from datetime import datetime
 
 
-from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.models import ColumnDataSource, HoverTool, PanTool, BoxZoomTool, WheelZoomTool, ResetTool, SaveTool
 from bokeh.palettes import *
 from bokeh.transform import factor_cmap, jitter
 
@@ -46,7 +46,7 @@ for currentRow in reader:
     curDateRaw = currentRow[7]
     curRefCount = searchMention(currentRow[10], target)
 
-    if curRefCount != 0 and curRefCount < 30 and dateFormat.match(curDateRaw):
+    if curRefCount != 0 and dateFormat.match(curDateRaw) and curSongTitle not in titles:
         # convert date string to datetime obj
         formattedDate = datetime.strptime(curDateRaw, '%B %d, %Y')
         # add values to lists
@@ -55,33 +55,34 @@ for currentRow in reader:
         refCounts.append(curRefCount)
         dates.append(formattedDate)
 
-        # print(str(curArtist) + ", " + str(curSongTitle) + ", " + str(curRefCount) + ", " +  str(formattedDate))
+        print(str(curArtist) + ", " + str(curSongTitle) + ", " + str(curRefCount) + ", " +  str(formattedDate))
 
 
+if len(artists) != 0:
 
+    artistsSeries = pd.Series(artists)
+    titlesSeries = pd.Series(titles)
+    datesSeries = pd.Series(dates)
+    countsSeries = pd.Series(refCounts)
 
-artistsSeries = pd.Series(artists)
-titlesSeries = pd.Series(titles)
-datesSeries = pd.Series(dates)
-countsSeries = pd.Series(refCounts)
+    data = {'artists' : artistsSeries,
+            'titles' : titlesSeries,
+            'dates' : datesSeries,
+            'counts' : countsSeries
+            }
 
-data = {'artists' : artistsSeries,
-        'titles' : titlesSeries,
-        'dates' : datesSeries,
-        'counts' : countsSeries
-        }
+    genIndex = list(range(0, len(dates)))
 
-genIndex = list(range(0, len(dates)))
+    df = pd.DataFrame(data)
+    df = df.set_index([genIndex, 'dates'])
 
-df = pd.DataFrame(data)
-df = df.set_index([genIndex, 'dates'])
+    # df of just monthly sums
+    monthDownsampled_Sum = df.resample('M', level=1).sum()
 
-# df of just monthly sums
-monthDownsampled_Sum = df.resample('M', level=1).sum()
+    monthDownsampled_Avg = df.resample('M', level=1).mean()
 
-monthDownsampled_Avg = df.resample('M', level=1).mean()
-
-
+else:
+    print("No matches in the database")
 
 # print(df.head())
 
@@ -111,15 +112,6 @@ genPal = viridis(len(artists)) #pylint: disable=E0602
 # output to static HTML file
 output_file("./plots/lines.html")
 
-# # # code for scatter
-# source1 = ColumnDataSource(data=dict(dates=dates, counts=refCounts, colors=artists))
-# p = figure(title="title", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime")
-# p.circle(x='dates', y='counts', fill_alpha=0.6, size=10, source=source1, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
-
-# # show results
-# show(p)
-
-
 sourceSum = ColumnDataSource(monthDownsampled_Sum)
 sourceAvg = ColumnDataSource(monthDownsampled_Avg)
 
@@ -132,22 +124,23 @@ hover = HoverTool(
     }
 )
 
+# to turn off toolbar: toolbar_location=None
 
 monthlyCounts = figure(title="Patek References Over Time", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime",
-                        toolbar_location=None, tools=[hover])
+                       tools=[hover, PanTool(), BoxZoomTool(), WheelZoomTool(), ResetTool(), SaveTool()])
 monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=2.5, legend="Sum")
 
 # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
 # monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
-
 
 show(monthlyCounts)
 
 
 
 
-# jitter('counts', width=0.6, range=p.y_range)
 
+
+# jitter('counts', width=0.6, range=p.y_range)
 
 # p.vbar_stack(artists, x='dates', width=0.9, color='colors', source=source1)
 
