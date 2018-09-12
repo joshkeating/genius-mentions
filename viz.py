@@ -55,7 +55,7 @@ for currentRow in reader:
         refCounts.append(curRefCount)
         dates.append(formattedDate)
 
-        print(str(curArtist) + ", " + str(curSongTitle) + ", " + str(curRefCount) + ", " +  str(formattedDate))
+        # print(str(curArtist) + ", " + str(curSongTitle) + ", " + str(curRefCount) + ", " +  str(formattedDate))
 
 
 if len(artists) != 0:
@@ -83,6 +83,10 @@ if len(artists) != 0:
 
 else:
     print("No matches in the database")
+
+
+
+
 
 # print(df.head())
 
@@ -131,12 +135,12 @@ monthlyCounts = figure(title="Patek References Over Time", x_axis_label='time', 
 monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=2.5, legend="Sum")
 
 # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
-# monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
+monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
 show(monthlyCounts)
 
 
-
+# 
 
 
 
