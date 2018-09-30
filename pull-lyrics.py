@@ -52,7 +52,6 @@ def processNRows(sourceFile, outputFile):
             artist = currentRow[4]
             url = currentRow[5]
 
-
             targetPage = requests.get(url)
             html = bs(targetPage.text, "html.parser")
 

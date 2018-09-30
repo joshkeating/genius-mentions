@@ -7,7 +7,6 @@ import csv
 import time
 
 
-
 # get access tokens from file
 def getToken():
     with open('./secrets.json') as secrets:
@@ -62,7 +61,7 @@ def findAllSongsForArtist(artistName, output):
     recordsProcessed = 0
     
     # init output file
-    # output = open(outputFile, 'w', newline='')
+    output = open(output, 'w', newline='')  # comment this for use with processFile()
     writer = csv.writer(output, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
     # process first call
@@ -91,14 +90,12 @@ def findAllSongsForArtist(artistName, output):
         recordsProcessed += 1
 
     print("Batch processed...", recordsProcessed, "records proccesed", sep=" ")
-    time.sleep(5)
+    time.sleep(1)
 
     # check to see if any more records exist
     if response["response"]["next_page"] == None:
         print("End of pages reached, Exiting")
         pageStatus = False
-        # output.close()
-            
 
     while pageStatus == True:
 
@@ -128,13 +125,13 @@ def findAllSongsForArtist(artistName, output):
                 recordsProcessed += 1
 
             print("Batch processed...", recordsProcessed, "records proccesed", sep=" ")
+            
             # Wait
-            time.sleep(5)
+            # time.sleep(5)
             
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
                 pageStatus = False
-                # output.close()
 
         except:
             print("Something broke!")
@@ -175,4 +172,6 @@ def processFile(sourceFile, outputFile):
 
 
 # run it
-processFile("ao6.txt", "ao6.csv")
+# processFile("ao6.txt", "ao6.csv")
+
+# findAllSongsForArtist("Young Thug", "thug-output.csv")
