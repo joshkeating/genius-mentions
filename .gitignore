@@ -1,13 +1,9 @@
 .vscode/
 secrets.json
 
-
-
 data/tmp.json
 data/artist-dict.json
-
 data/output/full-*
-
 data/output/all.csv
 
 db/geniusSQLite.db

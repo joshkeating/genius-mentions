@@ -44,30 +44,51 @@ def createDB(db):
     return
  
 
+# adds contents of provided csv file to the database
 def loadfromCSV(sourceFile):
-    
-    conn = sqlite3.connect("./db/geniusSQLite.db")
-    c = conn.cursor()
+    try:
+        conn = sqlite3.connect("./db/geniusSQLite.db")
+        c = conn.cursor()
 
-    csvfile =  open(sourceFile, newline='')
+        csvfile =  open(sourceFile, newline='')
 
-    # this double pass over the file probaby isnt necessary
-    songReader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
-    artistReader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
+        # this double pass over the file probaby isnt necessary
+        songReader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
+        artistReader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
 
-    # create list of tuples using DictReader
-    songData = [(row['song_id'], row['title'], row['title_with_featured'],
-        row['url'], row['album'], row['full_date'], row['date_month'],
-        row['date_year'], row['lyrics'], row['primary_artist_id']) for row in songReader]
-    
-    artistData = [(row['primary_artist_id'], row['primary_artist_name']) for row in artistReader]
+        # create list of tuples using DictReader
+        songData = [(row['song_id'], row['title'], row['title_with_featured'],
+            row['url'], row['album'], row['full_date'], row['date_month'],
+            row['date_year'], row['lyrics'], row['primary_artist_id']) for row in songReader]
+        
+        artistData = [(row['primary_artist_id'], row['primary_artist_name']) for row in artistReader]
 
-    c.executemany("INSERT OR IGNORE INTO artists VALUES (?,?);", artistData)
-    c.executemany("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", songData)
+        csvfile.close()
 
-    conn.commit()
-    csvfile.close()
-    
+        c.executemany("INSERT OR IGNORE INTO artists VALUES (?,?);", artistData)
+        c.executemany("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", songData)
+    except Error as e:
+        print(e)
+    finally:
+        conn.commit()
+        conn.close()
+    return
+
+
+def clearDatabase():
+    try:
+        # establish db connection
+        conn = sqlite3.connect('./db/geniusSQLite.db')
+        c = conn.cursor()
+        c.execute('DELETE FROM artists')
+        c.execute('DELETE FROM songs')
+        conn.commit()
+        c.execute('VACUUM')
+        print("All tables truncated.")
+    except Error as e:
+        print(e)
+    finally:
+        conn.close()
     return
 
 
@@ -83,3 +104,5 @@ def updateArtist(artistName):
 # createDB("./db/geniusSQLite.db")
 
 loadfromCSV("./data/output/full-ao1.csv")
+
+# clearDatabase()
