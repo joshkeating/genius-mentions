@@ -232,9 +232,6 @@ def getArtistId(artistName):
     # grab id from dict
     return response["response"]["hits"][0]["result"]["primary_artist"]["id"]
     
-        
-
-
 
 # get access tokens from file
 def getToken():
@@ -249,10 +246,12 @@ def checkElementExistence(input):
         return input.get_text()
 
 
-updateArtist("Young Thug")
+# run functions
+
+# updateArtist("Young Thug")
 
 # createDB("./db/geniusSQLite.db")
 
 # clearDatabase()
 
-# loadfromCSV("./data/output/full-ao1.csv")
+# loadfromCSV("./data/output/all.csv")
