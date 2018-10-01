@@ -4,6 +4,9 @@ import sqlite3
 from sqlite3 import Error
 import csv
 
+import requests
+import json
+import urllib.request
 
 # creates SQLite db in the /db dir, creates songs and artists tables
 # throws error if connection is not established
@@ -51,22 +54,22 @@ def loadfromCSV(sourceFile):
         c = conn.cursor()
 
         csvfile =  open(sourceFile, newline='')
+        reader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
 
-        # this double pass over the file probaby isnt necessary
-        songReader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
-        artistReader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
+        songData = []
+        artistData = []
 
-        # create list of tuples using DictReader
-        songData = [(row['song_id'], row['title'], row['title_with_featured'],
+        for row in reader:
+            songData.append((row['song_id'], row['title'], row['title_with_featured'],
             row['url'], row['album'], row['full_date'], row['date_month'],
-            row['date_year'], row['lyrics'], row['primary_artist_id']) for row in songReader]
-        
-        artistData = [(row['primary_artist_id'], row['primary_artist_name']) for row in artistReader]
+            row['date_year'], row['lyrics'], row['primary_artist_id']))
+            artistData.append((row['primary_artist_id'], row['primary_artist_name']))
 
         csvfile.close()
 
         c.executemany("INSERT OR IGNORE INTO artists VALUES (?,?);", artistData)
         c.executemany("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", songData)
+
     except Error as e:
         print(e)
     finally:
@@ -97,12 +100,61 @@ def fullUpdate():
     return
 
 def updateArtist(artistName):
+
+    # check if artist exists in db
+    artistId = getArtistId(artistName)
+
+    conn = sqlite3.connect('./db/geniusSQLite.db')
+    c = conn.cursor()
+
+    print(artistId)
+
+    aid = (artistId,)
+    c.execute('SELECT COUNT(*) FROM artists WHERE artist_id=?', aid)
+    print(c.fetchone())
+
+    conn.close()
+
+    # pull down all songs for artist
+
+    # check if each exists in db
+
+    # add songs that do not exist
+
     return
 
 
+def getArtistId(artistName):
 
-createDB("./db/geniusSQLite.db")
+    # form query
+    query = "https://api.genius.com/search?q=" + urllib.request.quote(artistName)
+    request = urllib.request.Request(query)
 
-loadfromCSV("./data/output/full-ao1.csv")
+    # add authentication headers
+    request.add_header("Authorization", "Bearer " + getToken())
+    request.add_header("User-Agent", "")
+
+    # deserialize to python dict
+    response = json.load(urllib.request.urlopen(request))
+
+    # grab id from dict
+    artistId = response["response"]["hits"][0]["result"]["primary_artist"]["id"]
+
+    return artistId
+
+
+# get access tokens from file
+def getToken():
+    with open('./secrets.json') as secrets:
+        return json.load(secrets).get("access_token")
+
+
+
+
+# updateArtist("Young Thug")
+
+# createDB("./db/geniusSQLite.db")
 
 # clearDatabase()
+
+loadfromCSV("./data/output/full-ao1.csv")
