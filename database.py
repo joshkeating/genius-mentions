@@ -8,6 +8,9 @@ import requests
 import json
 import urllib.request
 
+from bs4 import BeautifulSoup as bs
+import re
+
 # creates SQLite db in the /db dir, creates songs and artists tables
 # throws error if connection is not established
 def createDB(db):
@@ -123,10 +126,6 @@ def updateArtist(artistName):
     else:
         print(artistName + " currently exists in the database")
 
-
-    # songId, title, titleWithFeat, url, primaryArtistId
-    tempDict = []
-
     currentPage = 1
     pageStatus = True
     recordsProcessed = 0
@@ -156,30 +155,54 @@ def updateArtist(artistName):
                     titleWithFeat = song.get("title_with_featured")
                     url = song.get("url")
                     primaryArtistId = song.get("primary_artist").get("id")
+                    
+                    # get additional metadata from bs scrape
+                    try:
+                        # define the regex to replace metadata we dont care about
+                        pattern = r"\[.*\]|\(x[0-9]\)|\n"
+                        targetPage = requests.get(url)
+                        html = bs(targetPage.text, "html.parser")
+                        dateMonth = "NA"
+                        dateYear = "NA"
+                        # get raw text from a couple of elements on the page
+                        lyricsStandard = checkElementExistence(html.find("div", class_="lyrics"))
+                        fullDate = checkElementExistence(html.find("span", class_="metadata_unit-info metadata_unit-info--text_only")) 
+                        album = checkElementExistence(html.find("a", class_="song_album-info-title")).strip()
 
-                    tempDict.append((songId, title, titleWithFeat, url, primaryArtistId))
+                        # process metadata
+                        if fullDate != "NA":
+                            splitDate = fullDate.split()
+                            dateMonth = splitDate[0]
+                            dateYear = splitDate[2]
+                            
+                        # remove annotations and extra spaces
+                        lyricsTemp = re.sub(pattern, " ", lyricsStandard)
+                        lyrics = re.sub(' +',' ',lyricsTemp)
 
-                    recordsProcessed += 1
-                
+                        # insert new record into database
+                        newTuple = (int(songId), str(title), str(titleWithFeat), str(url), str(album),
+                            str(fullDate), str(dateMonth), str(dateYear), str(lyrics), int(primaryArtistId))
+
+                        c.execute("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", newTuple)
+                        recordsProcessed += 1
+                    
+                    except IndexError:
+                        print("Malformed html data")
+                    except Error as e:
+                        print(e)
 
             print("Batch processed...", recordsProcessed, "new records proccesed", sep=" ")
 
-            
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
                 pageStatus = False
             
             currentPage += 1
 
-        except:
-            print("Something broke!")
-    
-    print(tempDict)
+        except Error as e:
+            print(e)
 
-    # get additional metadata from bs scrape
-
-    # add songs that do not exist
-
+    conn.commit()
     conn.close()
 
     return
@@ -215,6 +238,11 @@ def getToken():
         return json.load(secrets).get("access_token")
 
 
+def checkElementExistence(input):
+    if input is None:
+        return "NA"
+    else:
+        return input.get_text()
 
 
 updateArtist("Young Thug")
