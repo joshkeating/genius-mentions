@@ -125,6 +125,7 @@ def updateArtist(artistName):
         conn.commit()
     else:
         print(artistName + " currently exists in the database")
+        conn.commit()
 
     currentPage = 1
     pageStatus = True
@@ -149,7 +150,7 @@ def updateArtist(artistName):
                 sid = (songId,)
                 c.execute('SELECT COUNT(*) FROM songs WHERE id=?', sid)
 
-                if c.fetchone() != (0,):
+                if c.fetchone() == (0,):
 
                     title = song.get("title")
                     titleWithFeat = song.get("title_with_featured")
@@ -184,6 +185,7 @@ def updateArtist(artistName):
                             str(fullDate), str(dateMonth), str(dateYear), str(lyrics), int(primaryArtistId))
 
                         c.execute("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", newTuple)
+                        conn.commit()
                         recordsProcessed += 1
                     
                     except IndexError:
@@ -191,7 +193,7 @@ def updateArtist(artistName):
                     except Error as e:
                         print(e)
 
-            print("Batch processed...", recordsProcessed, "new records proccesed", sep=" ")
+            print("Batch processed...", recordsProcessed, "new records found", sep=" ")
 
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
@@ -201,9 +203,11 @@ def updateArtist(artistName):
 
         except Error as e:
             print(e)
-
-    conn.commit()
+    
     conn.close()
+
+    print()
+    print(recordsProcessed, "new records inserted into the songs table!", sep=" ")
 
     return
 
