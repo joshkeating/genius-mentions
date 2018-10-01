@@ -104,22 +104,83 @@ def updateArtist(artistName):
     # check if artist exists in db
     artistId = getArtistId(artistName)
 
+    if artistId == -1:
+        print("Specified artist does not exist!")
+        return
+
+    # establish connection with database
     conn = sqlite3.connect('./db/geniusSQLite.db')
     c = conn.cursor()
 
-    print(artistId)
-
     aid = (artistId,)
     c.execute('SELECT COUNT(*) FROM artists WHERE artist_id=?', aid)
-    print(c.fetchone())
 
-    conn.close()
+    if c.fetchone() == (0,):
 
-    # pull down all songs for artist
+        print("Adding " + artistName + " to database")
+        c.execute("INSERT INTO artists VALUES (?,?);", (artistId, artistName))
+        conn.commit()
+    else:
+        print(artistName + " currently exists in the database")
 
-    # check if each exists in db
+
+    # songId, title, titleWithFeat, url, primaryArtistId
+    tempDict = []
+
+    currentPage = 1
+    pageStatus = True
+    recordsProcessed = 0
+
+    while pageStatus == True:
+
+        try:
+            query = "https://api.genius.com/artists/" + str(artistId) + "/songs?per_page=50&page=" + str(currentPage)
+            request = urllib.request.Request(query)
+            # add authentication headers
+            request.add_header("Authorization", "Bearer " + getToken())
+            request.add_header("User-Agent", "")
+            # deserialize to python dict
+            response = json.load(urllib.request.urlopen(request))
+            songList = response.get("response").get("songs")
+
+            for song in songList:
+
+                songId = song.get("id")
+
+                sid = (songId,)
+                c.execute('SELECT COUNT(*) FROM songs WHERE id=?', sid)
+
+                if c.fetchone() != (0,):
+
+                    title = song.get("title")
+                    titleWithFeat = song.get("title_with_featured")
+                    url = song.get("url")
+                    primaryArtistId = song.get("primary_artist").get("id")
+
+                    tempDict.append((songId, title, titleWithFeat, url, primaryArtistId))
+
+                    recordsProcessed += 1
+                
+
+            print("Batch processed...", recordsProcessed, "new records proccesed", sep=" ")
+
+            
+            if response["response"]["next_page"] == None:
+                print("End of pages reached, Exiting")
+                pageStatus = False
+            
+            currentPage += 1
+
+        except:
+            print("Something broke!")
+    
+    print(tempDict)
+
+    # get additional metadata from bs scrape
 
     # add songs that do not exist
+
+    conn.close()
 
     return
 
@@ -137,10 +198,15 @@ def getArtistId(artistName):
     # deserialize to python dict
     response = json.load(urllib.request.urlopen(request))
 
-    # grab id from dict
-    artistId = response["response"]["hits"][0]["result"]["primary_artist"]["id"]
+    # if artist does not exist
+    if len(response["response"]["hits"]) == 0:
+        return -1
 
-    return artistId
+    # grab id from dict
+    return response["response"]["hits"][0]["result"]["primary_artist"]["id"]
+    
+        
+
 
 
 # get access tokens from file
@@ -151,10 +217,10 @@ def getToken():
 
 
 
-# updateArtist("Young Thug")
+updateArtist("Young Thug")
 
 # createDB("./db/geniusSQLite.db")
 
 # clearDatabase()
 
-loadfromCSV("./data/output/full-ao1.csv")
+# loadfromCSV("./data/output/full-ao1.csv")
