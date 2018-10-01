@@ -101,7 +101,7 @@ def updateArtist(artistName):
 
 
 
-# createDB("./db/geniusSQLite.db")
+createDB("./db/geniusSQLite.db")
 
 loadfromCSV("./data/output/full-ao1.csv")
 

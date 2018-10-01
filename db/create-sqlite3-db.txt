@@ -1,0 +1,23 @@
+-- SQLite3 commands to create/recreate database
+-- This functionality can also be found in the python database code
+
+-- $ sqlite3 geniusSQLite.db
+CREATE TABLE artists (
+                        artist_id INTEGER PRIMARY KEY,
+                        artist_name TEXT NOT NULL
+                     );
+
+CREATE TABLE songs (
+                        id INTEGER PRIMARY KEY,
+                        title TEXT NOT NULL, 
+                        title_with_featured TEXT NOT NULL,
+                        url TEXT NOT NULL,
+                        album TEXT NOT NULL,
+                        full_date TEXT,
+                        date_month TEXT,
+                        date_year TEXT,
+                        lyrics TEXT,
+                        primary_artist_id INTEGER NOT NULL,
+                                FOREIGN KEY (primary_artist_id) REFERENCES artists(artist_id)
+                    );
+                    
