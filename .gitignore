@@ -9,3 +9,5 @@ data/artist-dict.json
 data/output/full-*
 
 data/output/all.csv
+
+db/geniusSQLite.db
