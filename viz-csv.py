@@ -129,16 +129,12 @@ hover = HoverTool(
 
 monthlyCounts = figure(title="Patek References Over Time", x_axis_label='time', y_axis_label='counts', x_axis_type="datetime",
                        tools=[hover, PanTool(), BoxZoomTool(), WheelZoomTool(), ResetTool(), SaveTool()])
-monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=2.5, legend="Sum")
+monthlyCounts.line(x='dates', y='counts', source=sourceSum, line_width=2.5, legend="Monthly Sum")
 
 # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
 monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
 show(monthlyCounts)
-
-
-# 
-
 
 
 # jitter('counts', width=0.6, range=p.y_range)

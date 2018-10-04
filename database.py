@@ -3,11 +3,9 @@
 import sqlite3
 from sqlite3 import Error
 import csv
-
 import requests
 import json
 import urllib.request
-
 from bs4 import BeautifulSoup as bs
 import re
 
