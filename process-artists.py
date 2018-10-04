@@ -49,8 +49,6 @@ def getArtistId(artistName):
     return artistId
 
 
-
-
 def findAllSongsForArtist(artistName, output):
 
     # get the id of given artist

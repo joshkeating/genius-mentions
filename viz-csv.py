@@ -33,7 +33,6 @@ print("searching for " + target)
 
 dateFormat = re.compile(r'[a-zA-Z]+ [0-9]+, \d{4}')
 
-
 refCounts = []
 dates = []
 artists = []
@@ -83,8 +82,6 @@ if len(artists) != 0:
 
 else:
     print("No matches in the database")
-
-
 
 
 

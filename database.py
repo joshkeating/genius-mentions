@@ -11,9 +11,13 @@ import urllib.request
 from bs4 import BeautifulSoup as bs
 import re
 
-# creates SQLite db in the /db dir, creates songs and artists tables
-# throws error if connection is not established
+
 def createDB(db):
+    """ 
+    creates SQLite db in the /db dir, creates songs and artists tables
+    throws error if connection is not established
+    """
+
     try:
         # establish db connection
         conn = sqlite3.connect(db)
@@ -50,8 +54,9 @@ def createDB(db):
     return
  
 
-# adds contents of provided csv file to the database
 def loadfromCSV(sourceFile):
+    """ Adds contents of provided csv file to the database """
+
     try:
         conn = sqlite3.connect("./db/geniusSQLite.db")
         c = conn.cursor()
@@ -82,6 +87,8 @@ def loadfromCSV(sourceFile):
 
 
 def clearDatabase():
+    """ Truncates all tables in the database"""
+
     try:
         # establish db connection
         conn = sqlite3.connect('./db/geniusSQLite.db')
@@ -97,12 +104,14 @@ def clearDatabase():
         conn.close()
     return
 
-
-
+# TODO:
 def fullUpdate():
+    """ docstring """
     return
 
+
 def updateArtist(artistName):
+    """ Add a docstring here """
 
     # check if artist exists in db
     artistId = getArtistId(artistName)
@@ -213,6 +222,7 @@ def updateArtist(artistName):
 
 
 def getArtistId(artistName):
+    """ Takes in an artist name and returns the Genius ID for that artist """
 
     # form query
     query = "https://api.genius.com/search?q=" + urllib.request.quote(artistName)

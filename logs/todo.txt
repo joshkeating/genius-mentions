@@ -1,0 +1,1 @@
+Eventually want this to capture the errors and pages where the scraper failed to get data
