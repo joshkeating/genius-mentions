@@ -11,7 +11,6 @@ from bokeh.palettes import *
 from bokeh.transform import factor_cmap, jitter
 
 
-
 def search_mention(lyrics, target_word):
     """ 
     Takes in a lyrics string and a target word, returns a count of the number of times the target
@@ -78,7 +77,6 @@ def month_plot(target_word):
     output_file("./plots/month-counts.html")
     
     # palette = viridis(len(artists)) #pylint: disable=E0602
-
     
     source_sum = ColumnDataSource(mo_downsampled)
 
@@ -100,7 +98,7 @@ def month_plot(target_word):
                            )
     monthly_counts.line(x='full_date', y='count', source=source_sum, line_width=2.5, legend="Monthly Sum")
 
-    monthly_counts.circle(x="full_date", y="count", size=5, hover_color="red", source=source_sum)
+    monthly_counts.circle(x="full_date", y="count", size=8, hover_color="red", source=source_sum)
 
     # source = ColumnDataSource(data=dict(dates=dates, counts=refCounts, colors=artists))
     # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
