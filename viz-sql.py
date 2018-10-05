@@ -51,16 +51,29 @@ def month_plot(target_word):
                         WHERE S.primary_artist_id = A.artist_id'''
 
     # this might be bad for performance in the long run
-    full_df = pd.read_sql_query(query_string, conn)
+    df = pd.read_sql_query(query_string, conn)
     # add count of target word to df
-    full_df['count'] = full_df['lyrics'].apply(search_mention, args=(target_word,))
+    df['count'] = df['lyrics'].apply(search_mention, args=(target_word,))
 
     # convert date string to datetime object
-    full_df['full_date'] = full_df['full_date'].apply(convert_to_datetime)
+    df['full_date'] = df['full_date'].apply(convert_to_datetime)
 
-    # print(full_df.head())
-    # print(list(full_df))
-    # print(full_df['full_date'])
+    # drop nulls
+    df= df.dropna(subset=['full_date'])
+
+    # set index and filter bad data
+    df = df.set_index('full_date')
+    df.index = pd.to_datetime(df.index, errors='coerce', infer_datetime_format=True)
+
+    month_downsampled_sums = df.resample('M').sum()
+
+    
+
+
+    # print(df.head())
+
+    print(month_downsampled_sums)
+
 
     return
 
