@@ -39,7 +39,7 @@ def month_plot(target_word):
     docstring
     """
 
-    print("searching for " + target_word)
+    print("searching for: \'" + target_word + "\'")
 
     # database location
     database_connection_string = "./db/geniusSQLite.db"
@@ -65,15 +65,48 @@ def month_plot(target_word):
     df = df.set_index('full_date')
     df.index = pd.to_datetime(df.index, errors='coerce', infer_datetime_format=True)
 
-    month_downsampled_sums = df.resample('M').sum()
+    # resample to monthly bins
+    mo_downsampled = df.resample('M').sum()
+
+    # remove zero counts
+    mo_downsampled = mo_downsampled[mo_downsampled["count"] > 0]
 
     
+    # ---- Plot Code ---- #
 
+    # output to static HTML file
+    output_file("./plots/month-counts.html")
+    
+    # palette = viridis(len(artists)) #pylint: disable=E0602
 
-    # print(df.head())
+    
+    source_sum = ColumnDataSource(mo_downsampled)
 
-    print(month_downsampled_sums)
+    # define behavior for hover
+    hover = HoverTool(
+        tooltips=[('Sum', '@count'), ('Date', '@full_date{%B %Y}')],
+        formatters={
+            'full_date' : 'datetime', # use 'datetime' formatter for 'dates' field
+        }
+    )
 
+    title = "\'" + target_word + "\' References Over Time"
+
+    monthly_counts = figure(title=title,
+                            x_axis_label='Time', 
+                            y_axis_label='Counts', 
+                            x_axis_type="datetime",
+                            tools=[hover, PanTool(), BoxZoomTool(), WheelZoomTool(), ResetTool(), SaveTool()]
+                           )
+    monthly_counts.line(x='full_date', y='count', source=source_sum, line_width=2.5, legend="Monthly Sum")
+
+    monthly_counts.circle(x="full_date", y="count", size=5, hover_color="red", source=source_sum)
+
+    # source = ColumnDataSource(data=dict(dates=dates, counts=refCounts, colors=artists))
+    # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
+    # monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
+
+    show(monthly_counts)
 
     return
 

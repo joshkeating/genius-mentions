@@ -85,29 +85,6 @@ else:
 
 
 
-# print(df.head())
-
-# print(monthDownsampled)
-
-
-
-# print(len(refCounts))
-# print(len(dates))
-
-# print(artists)
-
-# print(len(dates))
-# print(len(set(dates)))
-
-
-# print()
-# print(totalCount)
-# print(first)
-
-
-
-
-
 genPal = viridis(len(artists)) #pylint: disable=E0602
 
 # output to static HTML file
