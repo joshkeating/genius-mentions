@@ -1,7 +1,5 @@
 # Genius.com Lyric Analysis
 
-***
-
 ### This is still very much a work in progress
 
 ### TODO in to particular order:
