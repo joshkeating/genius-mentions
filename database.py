@@ -102,9 +102,9 @@ def clearDatabase():
         conn.close()
     return
 
-# TODO:
+
 def fullUpdate():
-    """ docstring """
+    """ docstring TODO:"""
     return
 
 
@@ -241,13 +241,16 @@ def getArtistId(artistName):
     return response["response"]["hits"][0]["result"]["primary_artist"]["id"]
     
 
-# get access tokens from file
 def getToken():
+    """ Opens the file that stores the api keys, returns the Genius APi access token """
+
     with open('./secrets.json') as secrets:
         return json.load(secrets).get("access_token")
 
 
 def checkElementExistence(input):
+    """ Takes in a html object and checks to see that it is valid """
+
     if input is None:
         return "NA"
     else:

@@ -74,7 +74,7 @@ def findAllSongsForArtist(artistName, output):
     response = json.load(urllib.request.urlopen(request))
 
     songList = response.get("response").get("songs")
-
+    
     for song in songList:
 
         songId = song.get("id")

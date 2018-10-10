@@ -22,7 +22,8 @@ def search_mention(lyrics, target_word):
 
 def convert_to_datetime(input_string):
     """
-    docstring
+    Given a input string, attempts to convert it into a datetime object. If the input string does not 
+    match the expected pattern, return None
     """
 
     if re.match(r'[a-zA-Z]+ [0-9]+, \d{4}', input_string):
@@ -35,7 +36,7 @@ def convert_to_datetime(input_string):
 
 def month_plot(target_word):
     """
-    docstring
+    Takes in a target word in the form of a string, plots the occurences of that string over history
     """
 
     print("searching for: \'" + target_word + "\'")
