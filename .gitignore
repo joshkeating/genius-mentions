@@ -7,3 +7,5 @@ data/output/full-*
 data/output/all.csv
 
 db/geniusSQLite.db
+
+plots/*.html
