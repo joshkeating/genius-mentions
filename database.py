@@ -259,7 +259,7 @@ def checkElementExistence(input):
 
 # run functions
 
-# updateArtist("Young Thug")
+# updateArtist("Billy Woods")
 
 # createDB("./db/geniusSQLite.db")
 
