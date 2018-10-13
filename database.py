@@ -128,7 +128,7 @@ def updateArtist(artistName):
     if c.fetchone() == (0,):
 
         print("Adding " + artistName + " to database")
-        c.execute("INSERT INTO artists VALUES (?,?);", (artistId, artistName))
+        c.execute("INSERT INTO artists VALUES (?,?);", (artistId, artistName.strip(' \t\n\r')))
         conn.commit()
     else:
         print(artistName + " currently exists in the database")
