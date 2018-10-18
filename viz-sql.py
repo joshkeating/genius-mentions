@@ -32,8 +32,6 @@ def convert_to_datetime(input_string):
         return None
 
 
-    
-
 def month_plot_line(target_word):
     """
     Takes in a target word in the form of a string, plots the occurences of that string over history
@@ -95,15 +93,14 @@ def month_plot_line(target_word):
                             x_axis_label='Time', 
                             y_axis_label='Counts', 
                             x_axis_type="datetime",
-                            tools=[hover, PanTool(), BoxZoomTool(), WheelZoomTool(), ResetTool(), SaveTool()]
+                            tools=[
+                                hover, PanTool(), BoxZoomTool(), 
+                                WheelZoomTool(), ResetTool(), SaveTool()
+                            ]
                            )
     monthly_counts.line(x='full_date', y='count', source=source_sum, line_width=2.5, legend="Monthly Sum")
 
     monthly_counts.circle(x="full_date", y="count", size=8, hover_color="red", source=source_sum)
-
-    # source = ColumnDataSource(data=dict(dates=dates, counts=refCounts, colors=artists))
-    # monthlyCounts.line(x='dates', y='counts', source=sourceAvg, line_width=3, legend="Avg")
-    # monthlyCounts.circle(x='dates', y='counts', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('colors', palette=genPal, factors=artists))
 
     show(monthly_counts)
 
@@ -157,7 +154,8 @@ def artist_plot_scatter(target_word):
 
     # define behavior for hover
     hover = HoverTool(
-        tooltips=[('Artist', '@artist_name'), ('Title', '@title'),('Album', '@album'), ('Sum', '@count'), ('Date', '@full_date{%B %Y}')],
+        tooltips=[('Artist', '@artist_name'), ('Title', '@title'),('Album', '@album'), 
+                  ('Sum', '@count'), ('Date', '@full_date{%B %Y}')],
         formatters={
             'full_date' : 'datetime', # use 'datetime' formatter for 'dates' field
         }
@@ -169,10 +167,14 @@ def artist_plot_scatter(target_word):
                             x_axis_label='Time',
                             y_axis_label='Counts', 
                             x_axis_type="datetime",
-                            tools=[hover, PanTool(), BoxZoomTool(), WheelZoomTool(), ResetTool(), SaveTool()]
+                            tools=[
+                                hover, PanTool(), BoxZoomTool(), 
+                                WheelZoomTool(), ResetTool(), SaveTool()
+                            ]
                         )
 
-    scatter_plot.circle(x='full_date', y='count', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('artist_name', palette=palette, factors=df.artist_name))
+    scatter_plot.circle(x='full_date', y='count', fill_alpha=0.4, size=8, source=source,
+        fill_color=factor_cmap('artist_name', palette=palette, factors=df.artist_name))
 
     show(scatter_plot)
 
@@ -181,7 +183,7 @@ def artist_plot_scatter(target_word):
 
 def get_artist(artist):
     """
-    Takes in a target word in the form of a string, plots the occurences of that string over history
+    Takes in the name of an artist and returns a dataframe of their songs in the database
     """
 
     print("searching for: \'" + artist + "\'")
@@ -191,7 +193,9 @@ def get_artist(artist):
 
     conn = sqlite3.connect(database_connection_string)
 
-    query_string = 'SELECT S.title, A.artist_name, S.album, S.full_date FROM songs AS S, artists AS A  WHERE S.primary_artist_id = A.artist_id AND A.artist_name = \'' + artist + "\'"
+    query_string = '''SELECT S.title, A.artist_name, S.album, S.full_date 
+                      FROM songs AS S, artists AS A 
+                      WHERE S.primary_artist_id = A.artist_id AND A.artist_name="{name}"'''.format(name = artist)
 
     # this might be bad for performance in the long run
     df = pd.read_sql_query(query_string, conn)
@@ -202,7 +206,8 @@ def get_artist(artist):
 
 def artist_word_scatter(target_word, artist):
     """
-    Takes in a target word in the form of a string, plots the occurences of that string over history
+    Takes in a target word and artist name and plots a scatterplot of the number of times
+    that artist used a word in their songs
     """
 
     print("searching for: \'" + target_word + "\'")
@@ -212,8 +217,9 @@ def artist_word_scatter(target_word, artist):
 
     conn = sqlite3.connect(database_connection_string)
 
-    query_string = 'SELECT S.title, A.artist_name, S.album, S.lyrics, S.full_date FROM songs AS S, artists AS A  WHERE S.primary_artist_id = A.artist_id AND A.artist_name = \'' + artist + "\'"
-
+    query_string = '''SELECT S.title, A.artist_name, S.album, S.lyrics, S.full_date 
+                      FROM songs AS S, artists AS A 
+                      WHERE S.primary_artist_id = A.artist_id AND A.artist_name="{name}"'''.format(name = artist)
 
     # this might be bad for performance in the long run
     df = pd.read_sql_query(query_string, conn)
@@ -247,7 +253,8 @@ def artist_word_scatter(target_word, artist):
 
     # define behavior for hover
     hover = HoverTool(
-        tooltips=[('Artist', '@artist_name'), ('Title', '@title'),('Album', '@album'), ('Sum', '@count'), ('Date', '@full_date{%B %Y}')],
+        tooltips=[('Artist', '@artist_name'), ('Title', '@title'),
+            ('Album', '@album'), ('Sum', '@count'), ('Date', '@full_date{%B %Y}')],
         formatters={
             'full_date' : 'datetime', # use 'datetime' formatter for 'dates' field
         }
@@ -259,14 +266,20 @@ def artist_word_scatter(target_word, artist):
                             x_axis_label='Time',
                             y_axis_label='Counts', 
                             x_axis_type="datetime",
-                            tools=[hover, PanTool(), BoxZoomTool(), WheelZoomTool(), ResetTool(), SaveTool()]
+                            tools=[
+                                hover, PanTool(), BoxZoomTool(), 
+                                WheelZoomTool(), ResetTool(), SaveTool()
+                            ]
                         )
 
-    scatter_plot.circle(x='full_date', y='count', fill_alpha=0.4, size=8, source=source, fill_color=factor_cmap('artist_name', palette=palette, factors=df.artist_name))
+    scatter_plot.circle(x='full_date', y='count', fill_alpha=0.4, size=8, source=source, 
+        fill_color=factor_cmap('artist_name', palette=palette, factors=df.artist_name))
 
     show(scatter_plot)
 
     return
+
+
 
 # month_plot_line("patek")
 
