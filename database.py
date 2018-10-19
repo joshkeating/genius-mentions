@@ -52,14 +52,14 @@ def createDB(db):
     return
  
 
-def loadfromCSV(sourceFile):
+def load_from_csv(source_file):
     """ Adds contents of provided csv file to the database """
 
     try:
         conn = sqlite3.connect("./db/geniusSQLite.db")
         c = conn.cursor()
 
-        csvfile =  open(sourceFile, newline='')
+        csvfile =  open(source_file, newline='')
         reader = csv.DictReader(csvfile, delimiter=';', quotechar='|')
 
         songData = []
@@ -84,7 +84,7 @@ def loadfromCSV(sourceFile):
     return
 
 
-def clearDatabase():
+def clear_database():
     """ Truncates all tables in the database"""
 
     try:
@@ -110,10 +110,10 @@ def update_artists_from_file(artist_file):
     interrupted or rate limited. Looks for files in the `./data/input/` dir.
     """
 
-    sourceFilePath = "./data/input/" + artist_file
+    source_file_path = "./data/input/" + artist_file
 
     # get names from file
-    file = open(sourceFilePath, "r")
+    file = open(source_file_path, "r")
     name_list = file.readlines()
 
     for name in name_list:
@@ -132,9 +132,9 @@ def update_artist(artist_name):
     """
 
     # check if artist exists in db
-    artistId = getArtistId(artist_name)
+    artist_id = get_artist_id(artist_name)
 
-    if artistId == -1:
+    if artist_id == -1:
         print("Specified artist does not exist in the Genius API.")
         return
 
@@ -142,30 +142,30 @@ def update_artist(artist_name):
     conn = sqlite3.connect('./db/geniusSQLite.db')
     c = conn.cursor()
 
-    aid = (artistId,)
+    aid = (artist_id,)
     c.execute('SELECT COUNT(*) FROM artists WHERE artist_id=?', aid)
 
     # check to see if artist_name exists in the sqlite database
     if c.fetchone() == (0,):
 
         print("Adding \'" + artist_name + "\' to database")
-        c.execute("INSERT INTO artists VALUES (?,?);", (artistId, artist_name.strip(' \t\n\r')))
+        c.execute("INSERT INTO artists VALUES (?,?);", (artist_id, artist_name.strip(' \t\n\r')))
         conn.commit()
     else:
         print("\'" + artist_name + "\' currently exists in the database")
         conn.commit()
 
-    currentPage = 1
-    pageStatus = True
-    recordsProcessed = 0
+    current_page = 1
+    page_status = True
+    records_processed = 0
 
-    while pageStatus == True:
+    while page_status == True:
 
         try:
-            query = "https://api.genius.com/artists/" + str(artistId) + "/songs?per_page=50&page=" + str(currentPage)
+            query = "https://api.genius.com/artists/" + str(artist_id) + "/songs?per_page=50&page=" + str(current_page)
             request = urllib.request.Request(query)
             # add authentication headers
-            request.add_header("Authorization", "Bearer " + getToken())
+            request.add_header("Authorization", "Bearer " + get_token())
             request.add_header("User-Agent", "")
             # deserialize to python dict
             response = json.load(urllib.request.urlopen(request))
@@ -196,9 +196,9 @@ def update_artist(artist_name):
                         date_month = "NA"
                         date_year = "NA"
                         # get raw text from a couple of elements on the page
-                        lyrics_standard = checkElementExistence(html.find("div", class_="lyrics"))
-                        full_date = checkElementExistence(html.find("span", class_="metadata_unit-info metadata_unit-info--text_only")) 
-                        album = checkElementExistence(html.find("a", class_="song_album-info-title")).strip()
+                        lyrics_standard = check_elem_exist(html.find("div", class_="lyrics"))
+                        full_date = check_elem_exist(html.find("span", class_="metadata_unit-info metadata_unit-info--text_only")) 
+                        album = check_elem_exist(html.find("a", class_="song_album-info-title")).strip()
 
                         # process date metadata
                         if full_date != "NA":
@@ -216,20 +216,20 @@ def update_artist(artist_name):
 
                         c.execute("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", newTuple)
                         conn.commit()
-                        recordsProcessed += 1
+                        records_processed += 1
                     
                     except IndexError:
                         print("Missing or malformed html data")
                     except Error as e:
                         print(e)
 
-            print("Batch processed...", recordsProcessed, "total new records found.", sep=" ")
+            print("Batch processed...", records_processed, "total new records found.", sep=" ")
 
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
-                pageStatus = False
+                page_status = False
             
-            currentPage += 1
+            current_page += 1
 
         except Error as e:
             print(e)
@@ -237,12 +237,12 @@ def update_artist(artist_name):
     conn.close()
 
     print()
-    print(recordsProcessed, "new records inserted into the songs table!", sep=" ")
+    print(records_processed, "new records inserted into the songs table!", sep=" ")
 
     return
 
 
-def getArtistId(artist_name):
+def get_artist_id(artist_name):
     """ Takes in an artist name and returns the Genius ID for that artist """
 
     # form query
@@ -250,7 +250,7 @@ def getArtistId(artist_name):
     request = urllib.request.Request(query)
 
     # add authentication headers
-    request.add_header("Authorization", "Bearer " + getToken())
+    request.add_header("Authorization", "Bearer " + get_token())
     request.add_header("User-Agent", "")
 
     # deserialize to python dict
@@ -264,14 +264,14 @@ def getArtistId(artist_name):
     return response["response"]["hits"][0]["result"]["primary_artist"]["id"]
     
 
-def getToken():
+def get_token():
     """ Opens the file that stores the api keys, returns the Genius APi access token """
 
     with open('./secrets.json') as secrets:
         return json.load(secrets).get("access_token")
 
 
-def checkElementExistence(input):
+def check_elem_exist(input):
     """ Takes in a html object and checks to see that it is valid """
 
     if input is None:
@@ -286,6 +286,6 @@ def checkElementExistence(input):
 
 # createDB("./db/geniusSQLite.db")
 
-# clearDatabase()
+# clear_database()
 
-# loadfromCSV("./data/output/all.csv")
+# load_from_csv("./data/output/all.csv")
