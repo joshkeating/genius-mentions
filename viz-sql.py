@@ -138,7 +138,6 @@ def artist_plot_scatter(target_word):
     df = df.set_index('full_date')
     df.index = pd.to_datetime(df.index, errors='coerce', infer_datetime_format=True)
 
-    
     # remove zero counts
     df = df[df["count"] > 0]
 
@@ -201,7 +200,7 @@ def get_artist(artist):
     df = pd.read_sql_query(query_string, conn)
 
     print(df)
-
+    return
 
 
 def artist_word_scatter(target_word, artist):
@@ -272,7 +271,7 @@ def artist_word_scatter(target_word, artist):
                             ]
                         )
 
-    scatter_plot.circle(x='full_date', y='count', fill_alpha=0.4, size=8, source=source, 
+    scatter_plot.circle(x='full_date', y='count', fill_alpha=0.4, size=8, source=source,
         fill_color=factor_cmap('artist_name', palette=palette, factors=df.artist_name))
 
     show(scatter_plot)
@@ -285,4 +284,4 @@ def artist_word_scatter(target_word, artist):
 
 # artist_plot_scatter("patek")
 
-artist_word_scatter("patek", "Young Thug")
+get_artist("Young Thug")

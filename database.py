@@ -103,35 +103,56 @@ def clearDatabase():
     return
 
 
-def fullUpdate():
-    """ docstring TODO:"""
+def update_artists_from_file(artist_file):
+    """
+    Takes in a text file with different artists seperated by newlines, adds each to the database. 
+    CAUTION: this should not be run with too many artists per file otherwise the web scraping might be 
+    interrupted or rate limited. Looks for files in the `./data/input/` dir.
+    """
+
+    sourceFilePath = "./data/input/" + artist_file
+
+    # get names from file
+    file = open(sourceFilePath, "r")
+    name_list = file.readlines()
+
+    for name in name_list:
+        print("---- Processing: " + name)
+        update_artist(name)
+    
     return
 
 
-def updateArtist(artistName):
-    """ Add a docstring here """
+def update_artist(artist_name):
+    """
+    Takes in an artist name string, checks to see if that artist exists in the Genius API, checks to see if 
+    that arist exists in the sqlite db and adds to it if they do not. Processes all records relating to 
+    artist in the Genius API and adds them to the sqlite db if it does not contain them already. For each new
+    record, scrapes the associated url on genius.com for additional metadata.
+    """
 
     # check if artist exists in db
-    artistId = getArtistId(artistName)
+    artistId = getArtistId(artist_name)
 
     if artistId == -1:
-        print("Specified artist does not exist!")
+        print("Specified artist does not exist in the Genius API.")
         return
 
-    # establish connection with database
+    # establish connection with the local database
     conn = sqlite3.connect('./db/geniusSQLite.db')
     c = conn.cursor()
 
     aid = (artistId,)
     c.execute('SELECT COUNT(*) FROM artists WHERE artist_id=?', aid)
 
+    # check to see if artist_name exists in the sqlite database
     if c.fetchone() == (0,):
 
-        print("Adding " + artistName + " to database")
-        c.execute("INSERT INTO artists VALUES (?,?);", (artistId, artistName.strip(' \t\n\r')))
+        print("Adding \'" + artist_name + "\' to database")
+        c.execute("INSERT INTO artists VALUES (?,?);", (artistId, artist_name.strip(' \t\n\r')))
         conn.commit()
     else:
-        print(artistName + " currently exists in the database")
+        print("\'" + artist_name + "\' currently exists in the database")
         conn.commit()
 
     currentPage = 1
@@ -157,50 +178,52 @@ def updateArtist(artistName):
                 sid = (songId,)
                 c.execute('SELECT COUNT(*) FROM songs WHERE id=?', sid)
 
+                # if current song already exists in the sqlite database
                 if c.fetchone() == (0,):
 
+                    # get metadata from Genius API
                     title = song.get("title")
-                    titleWithFeat = song.get("title_with_featured")
+                    title_with_feat = song.get("title_with_featured")
                     url = song.get("url")
-                    primaryArtistId = song.get("primary_artist").get("id")
+                    primary_artist_id = song.get("primary_artist").get("id")
                     
                     # get additional metadata from bs scrape
                     try:
                         # define the regex to replace metadata we dont care about
                         pattern = r"\[.*\]|\(x[0-9]\)|\n"
-                        targetPage = requests.get(url)
-                        html = bs(targetPage.text, "html.parser")
-                        dateMonth = "NA"
-                        dateYear = "NA"
+                        target_page = requests.get(url)
+                        html = bs(target_page.text, "html.parser")
+                        date_month = "NA"
+                        date_year = "NA"
                         # get raw text from a couple of elements on the page
-                        lyricsStandard = checkElementExistence(html.find("div", class_="lyrics"))
-                        fullDate = checkElementExistence(html.find("span", class_="metadata_unit-info metadata_unit-info--text_only")) 
+                        lyrics_standard = checkElementExistence(html.find("div", class_="lyrics"))
+                        full_date = checkElementExistence(html.find("span", class_="metadata_unit-info metadata_unit-info--text_only")) 
                         album = checkElementExistence(html.find("a", class_="song_album-info-title")).strip()
 
-                        # process metadata
-                        if fullDate != "NA":
-                            splitDate = fullDate.split()
-                            dateMonth = splitDate[0]
-                            dateYear = splitDate[2]
+                        # process date metadata
+                        if full_date != "NA":
+                            split_date = full_date.split()
+                            date_month = split_date[0]
+                            date_year = split_date[2]
                             
                         # remove annotations and extra spaces
-                        lyricsTemp = re.sub(pattern, " ", lyricsStandard)
-                        lyrics = re.sub(' +',' ',lyricsTemp)
+                        lyrics_temp = re.sub(pattern, " ", lyrics_standard)
+                        lyrics = re.sub(' +',' ',lyrics_temp)
 
                         # insert new record into database
-                        newTuple = (int(songId), str(title), str(titleWithFeat), str(url), str(album),
-                            str(fullDate), str(dateMonth), str(dateYear), str(lyrics), int(primaryArtistId))
+                        newTuple = (int(songId), str(title), str(title_with_feat), str(url), str(album),
+                            str(full_date), str(date_month), str(date_year), str(lyrics), int(primary_artist_id))
 
                         c.execute("INSERT OR IGNORE INTO songs VALUES (?,?,?,?,?,?,?,?,?,?);", newTuple)
                         conn.commit()
                         recordsProcessed += 1
                     
                     except IndexError:
-                        print("Malformed html data")
+                        print("Missing or malformed html data")
                     except Error as e:
                         print(e)
 
-            print("Batch processed...", recordsProcessed, "new records found", sep=" ")
+            print("Batch processed...", recordsProcessed, "total new records found.", sep=" ")
 
             if response["response"]["next_page"] == None:
                 print("End of pages reached, Exiting")
@@ -219,11 +242,11 @@ def updateArtist(artistName):
     return
 
 
-def getArtistId(artistName):
+def getArtistId(artist_name):
     """ Takes in an artist name and returns the Genius ID for that artist """
 
     # form query
-    query = "https://api.genius.com/search?q=" + urllib.request.quote(artistName)
+    query = "https://api.genius.com/search?q=" + urllib.request.quote(artist_name)
     request = urllib.request.Request(query)
 
     # add authentication headers
@@ -259,7 +282,7 @@ def checkElementExistence(input):
 
 # run functions
 
-# updateArtist("Billy Woods")
+# update_artist("Billy Woods")
 
 # createDB("./db/geniusSQLite.db")
 
