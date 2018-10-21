@@ -282,7 +282,7 @@ def check_elem_exist(input):
 
 # run functions
 
-# update_artist("Billy Woods")
+update_artist("Future")
 
 # createDB("./db/geniusSQLite.db")
 
