@@ -36,9 +36,7 @@ def get_all_artists():
 
 
 def get_connection():
-    """
-    returns a connection object to the sqlite database
-    """
+    """returns a connection object to the sqlite database"""
     
     database_connection_string = "./db/geniusSQLite.db"
     return sqlite3.connect(database_connection_string)
@@ -71,3 +69,4 @@ def get_lyrics_for_song(song):
 
 
 # get_artist("Action Bronson")
+get_lyrics_for_song("4r Da Squaw")
