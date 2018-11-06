@@ -7,6 +7,7 @@ import numpy as np
 import json
 from collections import defaultdict
 import string
+from collections import Counter
     
 
 def date_filter(input_string):
@@ -42,13 +43,18 @@ def export_json_counts():
             table = str.maketrans({key: None for key in string.punctuation})
             word = word.translate(table)  
 
-            data_dict[word].append(cur_date)
-                
+            if (word != ''):
+                data_dict[word].append(cur_date)
+            
+
+    for key in data_dict:
+        data_dict[key] = Counter(data_dict.get(key))
 
     with open('data.json', 'w') as outfile:  
         json.dump(data_dict, outfile)
 
     return 
+
 
 export_json_counts()
 
