@@ -197,6 +197,7 @@ def update_artist(artist_name):
                         date_year = "NA"
                         # get raw text from a couple of elements on the page
                         lyrics_standard = check_elem_exist(html.find("div", class_="lyrics"))
+                        # TODO: full_date is not using a unique css selector
                         full_date = check_elem_exist(html.find("span", class_="metadata_unit-info metadata_unit-info--text_only")) 
                         album = check_elem_exist(html.find("a", class_="song_album-info-title")).strip()
 
@@ -282,7 +283,7 @@ def check_elem_exist(input):
 
 # run functions
 
-update_artist("Future")
+update_artist("BROCKHAMPTON")
 
 # createDB("./db/geniusSQLite.db")
 

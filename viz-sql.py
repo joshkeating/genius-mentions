@@ -257,7 +257,7 @@ def artist_word_scatter(target_word, artist):
 
 
 
-# month_plot_line("patek")
+# month_plot_line("pussy")
 
-artist_plot_scatter("skrt")
+# artist_plot_scatter("patek")
 

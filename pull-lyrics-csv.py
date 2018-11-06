@@ -13,7 +13,6 @@ def checkElementExistence(input):
         return input.get_text()
 
 
-
 def processNRows(sourceFile, outputFile):
 
     sourceFilePath = "./data/output/" + sourceFile

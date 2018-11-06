@@ -21,9 +21,7 @@ def get_artist(artist):
 
 
 def get_all_artists():
-    """
-    TODO
-    """
+    """Prints a dataframe of all artists and their IDs."""
 
     query_string = '''SELECT  A.artist_id, A.artist_name
                       FROM artists AS A'''
@@ -68,5 +66,5 @@ def get_lyrics_for_song(song):
     return
 
 
-# get_artist("Action Bronson")
-get_lyrics_for_song("4r Da Squaw")
+get_artist("BROCKHAMPTON")
+# get_lyrics_for_song("4r Da Squaw")
