@@ -8,7 +8,10 @@ import json
 from collections import defaultdict
 import string
 from collections import Counter
-    
+from nltk.corpus import stopwords
+from nltk.tokenize import wordpunct_tokenize
+import itertools
+
 
 def date_filter(input_string):
     if re.match(r'[a-zA-Z]+ [0-9]+, \d{4}', input_string):
@@ -36,12 +39,12 @@ def export_json_counts():
         cur_date = row.full_date
         lyric_bulk = row.lyrics.lower()
 
-        split = lyric_bulk.split(' ')
+        stop_words = set(stopwords.words('english'))
+        stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'])
+
+        split = [i for i in wordpunct_tokenize(lyric_bulk) if i not in stop_words]
 
         for word in split:
-
-            table = str.maketrans({key: None for key in string.punctuation})
-            word = word.translate(table)  
 
             if (word != ''):
                 data_dict[word].append(cur_date)
@@ -50,8 +53,18 @@ def export_json_counts():
     for key in data_dict:
         data_dict[key] = Counter(data_dict.get(key))
 
-    with open('data.json', 'w') as outfile:  
-        json.dump(data_dict, outfile)
+    # chunk dict into parts
+    i = itertools.cycle(range(5))
+    split_dicts = [dict() for _ in range(5)]
+    for k, v in data_dict.items():
+        split_dicts[next(i)][k] = v
+    
+    # output files
+    for index, cDict in enumerate(split_dicts):
+
+        filename = 'data' +  str(index) + '.json'
+        with open(filename, 'w') as outfile:  
+            json.dump(cDict, outfile)
 
     return 
 
