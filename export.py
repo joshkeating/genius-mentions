@@ -12,7 +12,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import wordpunct_tokenize
 import itertools
 
-
 def date_filter(input_string):
     if re.match(r'[a-zA-Z]+ [0-9]+, \d{4}', input_string):
         return True
@@ -37,10 +36,14 @@ def export_json_counts():
     for row in df.itertuples():
         
         cur_date = row.full_date
+
+        cur_date = datetime.strptime(cur_date, '%B %d, %Y').date().isoformat()[:7]
+
+
         lyric_bulk = row.lyrics.lower()
 
         stop_words = set(stopwords.words('english'))
-        stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'])
+        stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}', '-'])
 
         split = [i for i in wordpunct_tokenize(lyric_bulk) if i not in stop_words]
 
@@ -62,9 +65,13 @@ def export_json_counts():
     # output files
     for index, cDict in enumerate(split_dicts):
 
-        filename = 'data' +  str(index) + '.json'
+        filename = 'data-monthly' +  str(index) + '.json'
         with open(filename, 'w') as outfile:  
             json.dump(cDict, outfile)
+
+    # # testing
+    # with open('data.json', 'w') as outfile:
+    #     json.dump(data_dict, outfile)
 
     return 
 
