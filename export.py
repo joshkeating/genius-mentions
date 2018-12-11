@@ -56,22 +56,22 @@ def export_json_counts():
     for key in data_dict:
         data_dict[key] = Counter(data_dict.get(key))
 
-    # chunk dict into parts
-    i = itertools.cycle(range(5))
-    split_dicts = [dict() for _ in range(5)]
-    for k, v in data_dict.items():
-        split_dicts[next(i)][k] = v
+    # # chunk dict into parts
+    # i = itertools.cycle(range(5))
+    # split_dicts = [dict() for _ in range(5)]
+    # for k, v in data_dict.items():
+    #     split_dicts[next(i)][k] = v
     
-    # output files
-    for index, cDict in enumerate(split_dicts):
+    # # output files
+    # for index, cDict in enumerate(split_dicts):
 
-        filename = 'data-monthly' +  str(index) + '.json'
-        with open(filename, 'w') as outfile:  
-            json.dump(cDict, outfile)
+    #     filename = 'data-monthly' +  str(index) + '.json'
+    #     with open(filename, 'w') as outfile:  
+    #         json.dump(cDict, outfile)
 
-    # # testing
-    # with open('data.json', 'w') as outfile:
-    #     json.dump(data_dict, outfile)
+    # testing
+    with open('data-monthly.json', 'w') as outfile:
+        json.dump(data_dict, outfile)
 
     return 
 
